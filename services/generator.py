@@ -58,7 +58,7 @@ async def generate_single_thumbnail(thumbnail_id: str, prompt: str, headshot_url
         url = upload_file(
             file_bytes=image_byte,
             file_name=f"{thumbnail_id}.png",
-            folder_path=f"thumbnails/{job_id}/",
+            folder=f"thumbnails/{job_id}/",
         )
   
 
@@ -75,7 +75,7 @@ async def generate_single_thumbnail(thumbnail_id: str, prompt: str, headshot_url
         logger.error(f"Error generating thumbnail {thumbnail_id}: {e}")
         with Session(engine) as session:
             thumb = session.get(Thumbnail, thumbnail_id)
-            thumb.status = "error"
+            thumb.status = "failed"
             thumb.error_message = str(e)[:500]
             session.add(thumb)
             session.commit()
@@ -101,23 +101,23 @@ async def process_job(job_id: str):
         ).all()
         thumbnail_ids = [thumb.id for thumb in thumbnails]
 
-        tasks = [
-            generate_single_thumbnail(thumbnail_id, prompt, headshot_url)
-            for thumbnail_id in thumbnail_ids
-        ]
+    tasks = [
+        generate_single_thumbnail(thumbnail_id, prompt, headshot_url)
+        for thumbnail_id in thumbnail_ids
+    ]
 
-        # runs all the tasks concurrently and waits for them to finish
-        await asyncio.gather(*tasks)
+    # runs all the tasks concurrently and waits for them to finish
+    await asyncio.gather(*tasks)
 
-        with Session(engine) as session:
-            thumbnails = session.exec(
-                select(Thumbnail).where(Thumbnail.job_id == job_id)
-            ).all()
-            all_failed = all(t.status == "failed" for t in thumbnails)
-            job = session.get(Job, job_id)
-            job.status = "failed" if all_failed else "completed"
-            session.add(job)
-            session.commit()
+    with Session(engine) as session:
+        thumbnails = session.exec(
+            select(Thumbnail).where(Thumbnail.job_id == job_id)
+        ).all()
+        all_failed = all(t.status == "failed" for t in thumbnails)
+        job = session.get(Job, job_id)
+        job.status = "failed" if all_failed else "completed"
+        session.add(job)
+        session.commit()
 
 
 

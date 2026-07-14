@@ -28,6 +28,8 @@ class Thumbnail(SQLModel, table=True):
 
 
 class Job(SQLModel, table=True):
+    __tablename__ = "jobs"
+
     id : str = Field(default_factory=_uuid, primary_key=True)
     prompt: str = Field(default="")
     num_thumbnails: int = Field(default=1, ge=1, le=3)

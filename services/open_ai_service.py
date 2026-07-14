@@ -14,7 +14,7 @@ async def generate_image(prompt: str, style_prompt: str, headshot_url: str) -> b
 
     )
 
-    response = client.responses.create(
+    response = await client.responses.create(
         model="gpt-4o-mini",
         input=[
             {
