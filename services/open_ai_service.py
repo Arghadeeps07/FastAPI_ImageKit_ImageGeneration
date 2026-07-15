@@ -8,10 +8,13 @@ async def generate_image(prompt: str, style_prompt: str, headshot_url: str) -> b
     """ """
 
     full_prompt = (
+        "Using the attached reference photo, generate a new professional headshot of the same "
+        "person. Preserve their exact facial identity, facial structure, skin tone, and hair "
+        "(same person, recognizable as them) — only change the lighting, background, framing, "
+        "and expression as described below. Head-and-shoulders crop, photorealistic, high detail, "
+        "single subject, no text or watermarks, no distortion of facial features or anatomy.\n\n"
         f"{style_prompt}\n\n"
-        f"User request: {prompt}\n\n"
-        "IMPORTANT: The image should be a headshot of the person in the provided headshot_url. "
-
+        f"Additional user request: {prompt}"
     )
 
     response = await client.responses.create(

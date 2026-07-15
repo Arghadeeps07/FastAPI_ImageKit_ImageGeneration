@@ -1,9 +1,12 @@
 import asyncio
+import io
 import logging
 import json
+from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.responses import StreamingResponse
+from PIL import Image
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from database import get_session
@@ -11,6 +14,22 @@ from models import Job, Thumbnail
 
 from services.generator import process_job, STYLE_ORDER
 from services.imagekit_service import upload_file, get_variants
+
+# ImageKit refuses to serve (even un-transformed) images over this many
+# megapixels, which breaks downstream consumers (e.g. OpenAI) fetching the
+# URL directly. Downscale on upload so stored headshots stay under the limit.
+MAX_HEADSHOT_DIMENSION = 2048
+
+
+def _downscale_headshot(content: bytes) -> bytes:
+    image = Image.open(io.BytesIO(content))
+    if max(image.size) <= MAX_HEADSHOT_DIMENSION:
+        return content
+
+    image.thumbnail((MAX_HEADSHOT_DIMENSION, MAX_HEADSHOT_DIMENSION))
+    buffer = io.BytesIO()
+    image.convert("RGB").save(buffer, format="JPEG", quality=90)
+    return buffer.getvalue()
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +70,19 @@ class JobResponse(BaseModel):
 async def upload_headshot(file: UploadFile = File(...)):
     # Implementation for uploading headshot
     content = await file.read()
+    resized = _downscale_headshot(content)
+
+    file_name = file.filename
+    content_type = file.content_type or "image/png"
+    if resized is not content:
+        file_name = f"{Path(file_name).stem}.jpg"
+        content_type = "image/jpeg"
+
     url = upload_file(
-        file_bytes=content, 
-        file_name=file.filename, 
-        folder="/headshots", 
-        content_type=file.content_type or "image/png"
+        file_bytes=resized,
+        file_name=file_name,
+        folder="/headshots",
+        content_type=content_type
     )
 
     return {"url": url}

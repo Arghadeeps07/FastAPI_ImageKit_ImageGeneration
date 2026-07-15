@@ -13,24 +13,27 @@ logger = logging.getLogger(__name__)
 
 STYLES = {
     "bold_dramatic": (
-        
-        "Create a bold and dramatic headshot with strong lighting, deep shadows, and intense contrast. "
-        "The subject should appear confident and powerful, with a serious expression. "
-        "Use a dark background to enhance the dramatic effect."     
+        "Bold and dramatic studio portrait: hard key light from one side, deep shadows, "
+        "high contrast (Rembrandt-style lighting), sharp focus on the eyes. "
+        "Confident, powerful expression, chin slightly down, direct gaze at camera. "
+        "Dark, near-black background with a subtle rim light separating the subject from it. "
+        "Shot on an 85mm portrait lens, shallow depth of field."
     ),
-    "clean_minimalistic" : (
-        
-        "Create a clean and minimalistic headshot with soft lighting and a neutral background. "
-        "The subject should appear approachable and professional, with a natural expression. "
-        "Focus on simplicity and clarity in the composition."
+    "clean_minimalistic": (
+        "Clean, minimalistic corporate headshot: soft, even key light with a large diffused "
+        "source (softbox-style), gentle fill, almost no harsh shadows. "
+        "Approachable, professional expression with a natural, relaxed smile. "
+        "Plain neutral light-grey or white seamless background, evenly lit, no clutter. "
+        "Shot on an 85mm portrait lens, shallow depth of field, sharp focus on the eyes."
     ),
-    "vibrant_energetic" : (
-        
-        "Create a vibrant and energetic headshot with bright colors and dynamic lighting. "
-        "The subject should appear lively and enthusiastic, with a friendly expression. "
-        "Use a colorful background to enhance the energetic feel of the image."
-    )
-
+    "vibrant_energetic": (
+        "Vibrant and energetic headshot: bright, punchy multi-color lighting (gel lighting), "
+        "dynamic angle, crisp highlights. "
+        "Lively, enthusiastic, friendly expression with genuine energy. "
+        "Colorful gradient or bokeh background that complements the subject without "
+        "overpowering the face. "
+        "Shot on an 85mm portrait lens, shallow depth of field, sharp focus on the eyes."
+    ),
 }
 
 STYLE_ORDER = ["bold_dramatic", "clean_minimalistic", "vibrant_energetic"]
